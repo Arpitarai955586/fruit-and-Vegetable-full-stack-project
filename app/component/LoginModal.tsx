@@ -3,26 +3,42 @@
 import { useState } from 'react'
 import { X, Eye, EyeOff, Mail, Lock } from 'lucide-react'
 
-export default function LoginModal({ isOpen, onClose, onLogin }) {
-  const [formData, setFormData] = useState({
+interface LoginModalProps {
+  isOpen: boolean
+  onClose: () => void
+  onLogin: (userData: { id: string; name: string; email: string }) => void
+}
+
+interface FormData {
+  email: string
+  password: string
+}
+
+interface FormErrors {
+  email?: string
+  password?: string
+}
+
+export default function LoginModal({ isOpen, onClose, onLogin }: LoginModalProps) {
+  const [formData, setFormData] = useState<FormData>({
     email: '',
     password: ''
   })
   const [showPassword, setShowPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
-  const [errors, setErrors] = useState({})
+  const [errors, setErrors] = useState<FormErrors>({})
 
-  const handleChange = (e) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
     setFormData(prev => ({ ...prev, [name]: value }))
     // Clear error when user starts typing
-    if (errors[name]) {
+    if (errors[name as keyof FormErrors]) {
       setErrors(prev => ({ ...prev, [name]: '' }))
     }
   }
 
   const validateForm = () => {
-    const newErrors = {}
+    const newErrors: FormErrors = {}
     
     if (!formData.email) {
       newErrors.email = 'Email is required'
@@ -39,7 +55,7 @@ export default function LoginModal({ isOpen, onClose, onLogin }) {
     return newErrors
   }
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     const newErrors = validateForm()
     
@@ -49,16 +65,41 @@ export default function LoginModal({ isOpen, onClose, onLogin }) {
     }
 
     setIsLoading(true)
-    
-    // Simulate API call
-    setTimeout(() => {
-      onLogin({
-        email: formData.email,
-        name: formData.email.split('@')[0] // Extract name from email
+
+    try {
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          email: formData.email,
+          password: formData.password
+        })
       })
-      setIsLoading(false)
+
+      const data = await res.json()
+
+      if (!res.ok) {
+        setErrors({ email: data.error || "Login failed" })
+        setIsLoading(false)
+        return
+      }
+
+      // Login success
+      onLogin(data.user)
+      
+      // Optional: localStorage me save karo
+      localStorage.setItem("user", JSON.stringify(data.user))
+
       setFormData({ email: '', password: '' })
-    }, 1500)
+      setIsLoading(false)
+      onClose()
+
+    } catch (error) {
+      setErrors({ email: "Server error, try again" })
+      setIsLoading(false)
+    }
   }
 
   const handleClose = () => {
