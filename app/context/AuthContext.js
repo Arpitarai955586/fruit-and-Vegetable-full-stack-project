@@ -10,12 +10,35 @@ export function AuthProvider({ children }) {
 
   useEffect(() => {
     // Check if user is logged in on mount
-    const savedUser = localStorage.getItem('user')
-    if (savedUser) {
-      setUser(JSON.parse(savedUser))
+    try {
+      const savedUser = localStorage.getItem('user')
+      if (savedUser) {
+        const parsedUser = JSON.parse(savedUser)
+        console.log('Loading user from localStorage:', parsedUser)
+        setUser(parsedUser)
+      }
+    } catch (error) {
+      console.error('Error parsing user from localStorage:', error)
+      localStorage.removeItem('user') // Clear corrupted data
     }
     setIsLoading(false)
   }, [])
+
+  // Handle user state changes for redirect (only on login, not on refresh)
+  useEffect(() => {
+    if (user) {
+      // Check if user is Arpita (admin) - redirect to dashboard
+      // Other users redirect to home page
+      // Only redirect if we just logged in (not on page refresh)
+      if (window.location.pathname === '/login' || window.location.pathname === '/signup') {
+        if (user.email === 'arpita@gmail.com') {
+          window.location.href = '/dashboard'
+        } else {
+          window.location.href = '/'
+        }
+      }
+    }
+  }, [user])
 
   const login = (userData) => {
     setUser(userData)
@@ -25,6 +48,7 @@ export function AuthProvider({ children }) {
   const logout = () => {
     setUser(null)
     localStorage.removeItem('user')
+    window.location.href = '/'
   }
 
   const value = {

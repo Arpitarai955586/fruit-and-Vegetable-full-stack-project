@@ -88,9 +88,7 @@ export default function LoginModal({ isOpen, onClose, onLogin }: LoginModalProps
 
       // Login success
       onLogin(data.user)
-      
-      // Optional: localStorage me save karo
-      localStorage.setItem("user", JSON.stringify(data.user))
+      // AuthContext handles localStorage save
 
       setFormData({ email: '', password: '' })
       setIsLoading(false)

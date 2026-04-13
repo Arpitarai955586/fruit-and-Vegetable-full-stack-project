@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { ShoppingCart, User, LogOut, Menu, X, Apple, Carrot } from 'lucide-react'
 import LoginModal from './LoginModal'
 import SignupModal from './SignupModal'
@@ -24,21 +24,39 @@ export default function Navbar() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [cartItems, setCartItems] = useState(0)
 
+  // Load cart items from localStorage
+  useEffect(() => {
+    const updateCartCount = () => {
+      const savedCart = localStorage.getItem('cartItems')
+      if (savedCart) {
+        try {
+          const parsedCart = JSON.parse(savedCart)
+          const totalItems = parsedCart.reduce((total: number, item: any) => total + item.quantity, 0)
+          setCartItems(totalItems)
+        } catch (error) {
+          console.error('Error loading cart from localStorage:', error)
+        }
+      }
+    }
+
+    updateCartCount()
+    // Listen for cart updates
+    const interval = setInterval(updateCartCount, 1000)
+    return () => clearInterval(interval)
+  }, [])
+
   const handleLogin = (userData: UserData) => {
     login(userData)
     setIsLoginOpen(false)
-    
-    // Check if user is Arpita (admin) - redirect to dashboard
-    // Other users redirect to home page
-    if (userData.email === 'arpita@gmail.com') {
-      window.location.href = '/dashboard'
-    } else {
-      window.location.href = '/'
-    }
+    // AuthContext will handle the redirect
   }
 
   const handleLogout = () => {
     logout()
+    // Clear user session
+    localStorage.removeItem('user')
+    // Redirect to home page
+    window.location.href = '/'
   }
 
   const handleSignup = (userData: UserData) => {
@@ -163,7 +181,7 @@ export default function Navbar() {
                 <div className="border-t border-green-700 pt-4 mt-4">
                   {user ? (
                     <div className="space-y-2">
-                      <span className="text-white text-sm block px-3">Welcome, User</span>
+                      <span className="text-white text-sm block px-3">Welcome, {user?.name}</span>
                       <button
                         onClick={handleLogout}
                         className="w-full flex items-center justify-center space-x-1 bg-red-500 hover:bg-red-600 text-white px-3 py-2 rounded-md text-sm font-medium"

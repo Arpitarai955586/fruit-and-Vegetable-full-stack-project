@@ -46,5 +46,17 @@
     "createdAt": "2026-04-13",
     "stock": 0,
     "category": "Fruits"
+  },
+  {
+    "id": "1776063370944",
+    "name": "Test Product",
+    "type": "Fruit",
+    "description": "Test persistence",
+    "price": 99,
+    "image": "https://example.com/test.jpg",
+    "status": "active",
+    "stock": 0,
+    "category": "Fruits",
+    "createdAt": "2026-04-13"
   }
 ]
