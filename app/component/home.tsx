@@ -48,7 +48,15 @@ export default function Home() {
             const response = await res.json()
             
             if (res.ok && response.success) {
-                const transformedProducts = response.data.map((product: any) => ({
+                const transformedProducts = response.data.map((product: {
+                    id: string;
+                    name: string;
+                    type: string;
+                    description?: string;
+                    price: number;
+                    status: string;
+                    image?: string;
+                }) => ({
                     id: product.id,
                     name: product.name,
                     type: product.type,

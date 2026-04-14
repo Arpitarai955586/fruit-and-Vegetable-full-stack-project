@@ -45,7 +45,16 @@ export default function VegetablesPage() {
       const response = await res.json()
       
       if (res.ok && response.success) {
-        const transformedProducts = response.data.map((product: any) => ({
+        const transformedProducts = response.data.map((product: {
+          id: string;
+          name: string;
+          type: string;
+          price: number;
+          rating?: number;
+          image?: string;
+          description?: string;
+          stock: number;
+        }) => ({
           id: product.id,
           name: product.name,
           type: product.type,
@@ -56,7 +65,7 @@ export default function VegetablesPage() {
           inStock: product.stock > 0
         }))
         // Filter only vegetables
-        setProducts(transformedProducts.filter(product => product.type === 'Vegetable'))
+        setProducts(transformedProducts.filter((product: Product) => product.type === 'Vegetable'))
       }
     } catch (error) {
       console.error('Error fetching products:', error)
