@@ -58,5 +58,17 @@
     "stock": 0,
     "category": "Fruits",
     "createdAt": "2026-04-13"
+  },
+  {
+    "id": "1776262006985",
+    "name": "papaya ",
+    "type": "Fruit",
+    "description": "papaya is good for health",
+    "price": 298,
+    "image": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRlBEwGEZliZAYHjNRZuYMDSDNr0KxZqUCoSA&s",
+    "status": "inactive",
+    "stock": 0,
+    "category": "Fruits",
+    "createdAt": "2026-04-15"
   }
 ]

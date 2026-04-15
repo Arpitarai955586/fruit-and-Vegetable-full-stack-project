@@ -13,13 +13,8 @@ let users: User[] = [
     name: 'Arpita',
     email: 'arpita@gmail.com',
     password: 'arpita123'
-  },
-  {
-    id: '2',
-    name: 'Test User',
-    email: 'user@test.com',
-    password: 'user123'
   }
+  
 ];
 
 export const addUser = (user: User): void => {

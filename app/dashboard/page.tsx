@@ -1,7 +1,9 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import { Plus, Edit2, Trash2, X, Check, Users, Package, TrendingUp, DollarSign, Home, Settings, LogOut, Menu, Bell, ChevronDown } from 'lucide-react'
+import { useAuth } from '../context/AuthContext'
 
 interface DataItem {
   id: string
@@ -17,6 +19,9 @@ interface DataItem {
 }
 
 export default function Dashboard() {
+  const { user } = useAuth()
+  const router = useRouter()
+  const [isAuthLoading, setIsAuthLoading] = useState(true)
   const [data, setData] = useState<DataItem[]>([])
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [editingItem, setEditingItem] = useState<DataItem | null>(null)
@@ -28,13 +33,44 @@ export default function Dashboard() {
     image: '',
     status: 'active' as 'active' | 'inactive'
   })
-  const [isLoading, setIsLoading] = useState(false)
+  const [isDataLoading, setIsDataLoading] = useState(false)
   const [sidebarOpen, setSidebarOpen] = useState(true)
+
+  // Check if user is admin, redirect to home if not
+  useEffect(() => {
+    console.log('Dashboard: checking user auth', { user, userEmail: user?.email })
+    
+    // Give time for auth context to load user from localStorage
+    const timer = setTimeout(() => {
+      if (!user || user.email !== 'arpita@gmail.com') {
+        console.log('Dashboard: redirecting to home - not admin or no user', { user, userEmail: user?.email })
+        router.push('/')
+      } else {
+        console.log('Dashboard: admin user confirmed, staying on dashboard')
+        setIsAuthLoading(false)
+      }
+    }, 100)
+
+    return () => clearTimeout(timer)
+  }, [user, router])
 
   // Fetch products from API
   useEffect(() => {
-    fetchProducts()
-  }, [])
+    if (!isAuthLoading) {
+      fetchProducts()
+    }
+  }, [isAuthLoading])
+
+  if (isAuthLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading dashboard...</p>
+        </div>
+      </div>
+    )
+  }
 
   const fetchProducts = async () => {
     try {
@@ -69,7 +105,7 @@ export default function Dashboard() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setIsLoading(true)
+    setIsDataLoading(true)
     
     try {
       const productData = {
@@ -122,11 +158,11 @@ export default function Dashboard() {
       }
 
       resetForm()
-      setIsLoading(false)
+      setIsDataLoading(false)
     } catch (error) {
       console.error('Error saving product:', error)
       alert('Error saving product. Please try again.')
-      setIsLoading(false)
+      setIsDataLoading(false)
     }
   }
 
@@ -542,10 +578,10 @@ export default function Dashboard() {
                   </button>
                   <button
                     type="submit"
-                    disabled={isLoading}
+                    disabled={isDataLoading}
                     className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
                   >
-                    {isLoading ? (
+                    {isDataLoading ? (
                       <div className="flex items-center">
                         <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
                         Processing...

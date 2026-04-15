@@ -64,13 +64,14 @@ export default function LoginModal({ isOpen, onClose, onLogin }: LoginModalProps
       return
     }
 
+    console.log('Submitting login form:', { email: formData.email, password: '***' })
     setIsLoading(true)
 
     try {
       const res = await fetch('/api/auth/login', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
         },
         body: JSON.stringify({
           email: formData.email,
@@ -95,6 +96,7 @@ export default function LoginModal({ isOpen, onClose, onLogin }: LoginModalProps
       onClose()
 
     } catch (error) {
+      console.error('Login error:', error)
       setErrors({ email: "Server error, try again" })
       setIsLoading(false)
     }

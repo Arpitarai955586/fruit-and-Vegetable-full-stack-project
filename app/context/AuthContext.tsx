@@ -1,6 +1,6 @@
 'use client'
 
-import { createContext, useContext, useState, ReactNode } from 'react'
+import { createContext, useContext, useState, useEffect, ReactNode } from 'react'
 
 interface User {
   id: string
@@ -20,12 +20,27 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined)
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
 
+  // Initialize user from localStorage on mount
+  useEffect(() => {
+    const savedUser = localStorage.getItem('user')
+    if (savedUser) {
+      try {
+        setUser(JSON.parse(savedUser))
+      } catch (error) {
+        console.error('Error parsing saved user:', error)
+        localStorage.removeItem('user')
+      }
+    }
+  }, [])
+
   const login = (userData: User) => {
     setUser(userData)
+    localStorage.setItem('user', JSON.stringify(userData))
   }
 
   const logout = () => {
     setUser(null)
+    localStorage.removeItem('user')
   }
 
   const isAuthenticated = !!user

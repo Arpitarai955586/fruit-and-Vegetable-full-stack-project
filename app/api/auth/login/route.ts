@@ -6,6 +6,9 @@ export async function POST(request: NextRequest) {
     const body = await request.json()
     const { email, password } = body
 
+    console.log('Login attempt:', { email, password: '***' })
+    console.log('Request body:', body)
+
     // ✅ validation
     if (!email || !password) {
       return NextResponse.json(

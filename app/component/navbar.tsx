@@ -46,9 +46,17 @@ export default function Navbar() {
   }, [])
 
   const handleLogin = (userData: UserData) => {
+    console.log('Navbar handleLogin called with user data:', userData)
     login(userData)
     setIsLoginOpen(false)
-    // AuthContext will handle the redirect
+    // Check if user is admin (arpita@gmail.com), redirect accordingly
+    if (userData.email === 'arpita@gmail.com') {
+      console.log('Admin user detected in navbar, redirecting to dashboard')
+      window.location.href = '/dashboard'
+    } else {
+      console.log('Regular user detected in navbar, redirecting to home')
+      window.location.href = '/'
+    }
   }
 
   const handleLogout = () => {
