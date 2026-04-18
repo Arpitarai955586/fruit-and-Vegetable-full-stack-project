@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import { ShoppingCart, User, LogOut, Menu, X, Apple, Carrot } from 'lucide-react'
 import LoginModal from './LoginModal'
 import SignupModal from './SignupModal'
@@ -19,10 +20,12 @@ interface NavLink {
 
 export default function Navbar() {
   const { user, login, logout } = useAuth()
+  const router = useRouter()
   const [isLoginOpen, setIsLoginOpen] = useState(false)
   const [isSignupOpen, setIsSignupOpen] = useState(false)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [cartItems, setCartItems] = useState(0)
+  const [isCartOpen, setIsCartOpen] = useState(false)
 
   // Load cart items from localStorage
   useEffect(() => {
@@ -44,6 +47,19 @@ export default function Navbar() {
     const interval = setInterval(updateCartCount, 1000)
     return () => clearInterval(interval)
   }, [])
+
+  const getCartItems = () => {
+    try {
+      return JSON.parse(localStorage.getItem('cartItems') || '[]')
+    } catch {
+      return []
+    }
+  }
+
+  const getCartTotal = () => {
+    const items = getCartItems()
+    return items.reduce((total: number, item: any) => total + (item.price * item.quantity), 0)
+  }
 
   const handleLogin = (userData: UserData) => {
     console.log('Navbar handleLogin called with user data:', userData)
@@ -79,6 +95,7 @@ export default function Navbar() {
   
     { name: 'Fruits', href: '/fruits' },
     { name: 'Vegetables', href: '/vegetables' },
+    { name: 'Orders', href: '/orders' },
   ]
 
   return (
@@ -116,14 +133,68 @@ export default function Navbar() {
             <div className="hidden md:flex items-center space-x-4">
               {/* Cart */}
               <div className="relative">
-                <button className="text-white hover:bg-green-700 p-2 rounded-full transition-colors">
+                {/* <button 
+                  onClick={() => setIsCartOpen(!isCartOpen)}
+                  className="text-white hover:bg-green-700 p-2 rounded-full transition-colors"
+                >
                   <ShoppingCart className="h-6 w-6" />
                   {cartItems > 0 && (
                     <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
                       {cartItems}
                     </span>
                   )}
-                </button>
+                </button> */}
+
+                {/* Cart Dropdown */}
+                {isCartOpen && (
+                  <div className="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-xl z-50">
+                    <div className="p-4">
+                      <h3 className="font-semibold text-gray-900 mb-3">Shopping Cart</h3>
+                      
+                      {getCartItems().length === 0 ? (
+                        <p className="text-gray-500 text-center py-4">Your cart is empty</p>
+                      ) : (
+                        <>
+                          <div className="space-y-2 max-h-60 overflow-y-auto">
+                            {getCartItems().map((item: any, index: number) => (
+                              <div key={index} className="flex items-center justify-between p-2 bg-gray-50 rounded">
+                                <div className="flex items-center">
+                                  <img
+                                    src={item.image}
+                                    alt={item.name}
+                                    className="w-10 h-10 object-cover rounded mr-3"
+                                  />
+                                  <div>
+                                    <p className="text-sm font-medium text-gray-900">{item.name}</p>
+                                    <p className="text-xs text-gray-600">Qty: {item.quantity}</p>
+                                  </div>
+                                </div>
+                                <p className="text-sm font-medium text-gray-900">Rs. {(item.price * item.quantity).toFixed(2)}</p>
+                              </div>
+                            ))}
+                          </div>
+                          
+                          <div className="border-t mt-3 pt-3">
+                            <div className="flex justify-between items-center mb-3">
+                              <span className="font-semibold text-gray-900">Total:</span>
+                              <span className="font-bold text-green-600">Rs. {getCartTotal().toFixed(2)}</span>
+                            </div>
+                            
+                            <button
+                              onClick={() => {
+                                router.push('/checkout')
+                                setIsCartOpen(false)
+                              }}
+                              className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-md transition-colors"
+                            >
+                              Proceed to Checkout
+                            </button>
+                          </div>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                )}
               </div>
 
               {/* Auth buttons */}

@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import { ShoppingCart, Star, Filter, Search, X, Plus, Minus } from 'lucide-react'
 
 interface Product {
@@ -22,6 +23,7 @@ interface CartItem {
 type ProductType = 'All' | 'Fruit' | 'Vegetable'
 
 export default function Home() {
+    const router = useRouter()
     const [searchTerm, setSearchTerm] = useState<string>('')
     const [selectedType, setSelectedType] = useState<ProductType>('All')
     const [cartItems, setCartItems] = useState<CartItem[]>([])
@@ -382,7 +384,13 @@ export default function Home() {
                                     >
                                         Continue Shopping
                                     </button>
-                                    <button className="bg-green-600 text-white py-3 rounded-lg font-medium hover:bg-green-700 transition-colors shadow-lg">
+                                    <button
+                                        onClick={() => {
+                                            setIsCartOpen(false)
+                                            router.push('/checkout')
+                                        }}
+                                        className="bg-green-600 text-white py-3 rounded-lg font-medium hover:bg-green-700 transition-colors"
+                                    >
                                         Proceed to Checkout
                                     </button>
                                 </div>

@@ -1,0 +1,21 @@
+# Gmail SMTP Configuration for Email Sending
+# Copy these lines to your .env file and fill in your actual credentials
+
+EMAIL_USER=your-gmail-address@gmail.com
+EMAIL_PASS=your-app-password
+
+# IMPORTANT GMAIL SETUP INSTRUCTIONS:
+# 1. Go to your Google Account: https://myaccount.google.com/
+# 2. Enable 2-Step Verification
+# 3. Go to Security -> 2-Step Verification -> App passwords
+# 4. Generate a new App Password
+# 5. Use the App Password here (NOT your regular Gmail password)
+# 6. Replace 'your-gmail-address@gmail.com' with your actual Gmail
+# 7. Replace 'your-app-password' with the generated App Password
+
+# After configuring, restart your development server with:
+# npm run dev
+
+# CURRENT ERROR: "Missing credentials for PLAIN"
+# This means EMAIL_USER and EMAIL_PASS are not set in environment
+# The system is looking for these environment variables but can't find them
